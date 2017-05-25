@@ -5,5 +5,9 @@
 ---
 ### 05/25/2017
 
-* RStudio installation on Ubuntu:
+* Setting up the machine
+
+1. Download and install Git
+2. Download and install R
+3. Download and install RStudio. To install RStudio on Ubuntu, follow these directions:
 https://www.datascienceriot.com/33/kris/
