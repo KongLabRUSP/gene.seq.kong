@@ -1,4 +1,4 @@
-# Project: RNA-seq data visualization
+# Project: RNA-seq data visualization, 8-week study, AOM-DSS-Curcumin
 # Author: Davit Sargsyan
 # Created: 04/26/2017
 # Sources: 
@@ -12,20 +12,12 @@ require(gridExtra)
 require(VennDiagram)
 
 # Read data----
-# 18 Weeks
-f1 <- "data/AOMDSS-control 18 wk.csv"
-f2 <- "data/AOMDSSCur- AOMDSS 18 wk.csv"
-
-# # 8 Weeks
-# f1 <- "data/Con vs AOMDSS 8wk study2.csv"
-# f2 <- "data/AOMDSS vs AOMDSS Cur 8 wkstudy 2.csv"
-# 
-# # No AOM
-# f1 <- "data/Con vs DSS study2.csv"
-# f2 <- "data/DSS vs DSS Cur study2.csv"
+# 8 Weeks
+f1 <- "data/8wk AOMDSS-Control 8wk study2.csv"
+f2 <- "data/8wk AOMDSSCur-AOMDSS 8 wkstudy 2.csv"
 
 # Positive vs. negative controls
-dt1 <- fread(f1)
+dt1 <- fread(f1)[, 1:2]
 names(dt1) <- c("gene",
                 "dlog2.ctrl.aomdss")
 # Keep only genes with at least 2-fold change
@@ -33,10 +25,12 @@ dt1$dlog2.ctrl.aomdss <- as.numeric(dt1$dlog2.ctrl.aomdss)
 dt1 <- subset(dt1,
               abs(dlog2.ctrl.aomdss) >= 1 &
                 is.finite(dlog2.ctrl.aomdss))
+summary(dt1)
+duplicated(dt1$gene)
 dt1
 
 # Positive control vs. treatment
-dt2 <- fread(f2)
+dt2 <- fread(f2)[, 1:2]
 names(dt2) <- c("gene",
                 "dlog2.aomdss.cur")
 # Keep only genes with at least 2-fold change
@@ -44,6 +38,7 @@ dt2$dlog2.aomdss.cur <- as.numeric(dt2$dlog2.aomdss.cur)
 dt2 <- subset(dt2,
               abs(dlog2.aomdss.cur) >= 1 &
                 is.finite(dlog2.aomdss.cur))
+duplicated(dt1$gene)
 dt2
 
 # Merge the data----
@@ -51,6 +46,12 @@ dt3 <- merge(dt1,
              dt2,
              by = "gene")
 dt3
+dt3$gene[duplicated(dt3$gene)]
+length(unique(dt3$gene))
+
+# ATTN! REMOVED DUPLICATES. ASK RENYI!
+# Multiple records for  "Hba-a1" and "Trim40"
+dt3 <- dt3[!duplicated(dt3$gene), ]
 
 # Melt the data----
 dt4 <- melt.data.table(data = dt3,
@@ -58,20 +59,23 @@ dt4 <- melt.data.table(data = dt3,
                        measure.vars = c("dlog2.ctrl.aomdss",
                                         "dlog2.aomdss.cur"))
 
+# Set anything over 8-fold change (i.e. value > 3) to 3
+dt4$value[dt4$value > 3] <- 3
+dt4$value[dt4$value < -3] <- -3
+summary(dt4$value)
+
 # Sort values----
+length(unique(dt4$gene))
 # dt4$gene <- factor(dt4$gene)
-lvls <- unique(dt4$gene[dt4$variable == unique(dt4$variable)[1]])
-lvls <- lvls[order(dt4$value[dt4$variable == unique(dt4$variable)[1]])]
+lvls <- dt3$gene
+lvls <- lvls[order(dt3$dlog2.ctrl.aomdss)]
 dt4$gene <- factor(dt4$gene,
                    levels = lvls)
 
 levels(dt4$variable) <- c("AOMDSS - Negative Control",
                           "AOMDSSCur - AOMDSS")
-
-# # Set anything over 8-fold change (i.e. value > 3) to 3
-# dt4$value[dt4$value > 3] <- 3
-# dt4$value[dt4$value < -3] <- -3
-# summary(dt4$value)
+summary(dt4)
+setkey(dt4, gene)
 
 #*****************************************************
 # Heatmap----
@@ -81,8 +85,8 @@ levels(dt4$variable) <- c("AOMDSS - Negative Control",
 #      units = 'in',
 #      res = 300,
 #      compression = "lzw+p")
-png(filename = "tmp/heatmap_18w.png",
-     height = 6,
+png(filename = "tmp/heatmap_8w_aom_dss.png",
+     height = 12,
      width = 6,
      units = 'in',
      res = 300)
@@ -103,7 +107,7 @@ ggplot(data = dt4) +
                        name = "Log2 Change") +
   scale_x_discrete("Treatment") + 
   scale_y_discrete("Gene") +
-  ggtitle("18 Weeks")  +
+  ggtitle("8 Weeks AOM-DSS-Curcumin")  +
   theme(axis.text.x = element_text(angle = 0))
 graphics.off()
 
@@ -125,7 +129,7 @@ if (floor(length(lbls)/nLabCol) < length(lbls)/nLabCol) {
 lbls <- matrix(lbls,
                ncol = nLabCol)
 
-png(filename = "tmp/venn_up_down_18w.png",
+png(filename = "tmp/venn_up_down_8w_aom_dss.png",
      height = 5,
      width = 10,
      units = 'in',
@@ -136,7 +140,7 @@ p1 <- venn.diagram(x = list(A = which(xx %in% l1),
                    fill = c("red", "green"),
                    alpha = c(0.5, 0.5),
                    compression = "lzw+p",
-                   main = "18 Weeks",
+                   main = "8 Weeks AOM-DSS-Curcumin",
                    sub = "A (Upregulation): (AOM+DSS) < (Negative Control)\nB (Downlregulation): (AOM+DSS+Cur) > (AOM+DSS)")
 grid.arrange(gTree(children = p1),
              tableGrob(lbls),
@@ -160,7 +164,7 @@ if (floor(length(lbls)/nLabCol) < length(lbls)/nLabCol) {
 lbls <- matrix(lbls,
                ncol = nLabCol)
 
-png(filename = "tmp/venn_down_up_18w.png",
+png(filename = "tmp/venn_down_up_8w_aom_dss.png",
     height = 5,
     width = 10,
     units = 'in',
@@ -171,7 +175,7 @@ p1 <- venn.diagram(x = list(A = which(xx %in% l1),
                    fill = c("red", "green"),
                    alpha = c(0.5, 0.5),
                    compression = "lzw+p",
-                   main = "18 Weeks",
+                   main = "8 Weeks AOM-DSS-Curcumin",
                    sub = "A (Downlregulation): (AOM+DSS) > (Negative Control)\nB (Upregulation): (AOM+DSS+Cur) < (AOM+DSS)")
 grid.arrange(gTree(children = p1),
              tableGrob(lbls),
