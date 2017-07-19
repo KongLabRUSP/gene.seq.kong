@@ -3,6 +3,10 @@
 ### Created: 05/25/2017  
 
 ---
+### 05/30/2017
+
+1. Added new scipt for Yue's publication plots
+
 ### 05/25/2017
 
 ### Setting up the machine

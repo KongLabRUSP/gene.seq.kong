@@ -5,13 +5,16 @@
 # Sources: 
 #*****************************************************
 require(data.table)
-dt1 <- fread("data/data_05302017/canonical pathways comparison in AOMDSS 8wks top hits.csv")
+dt1 <- fread("data/data_05302017/canonical pathways comparison in AOMDSS 8wks top hits.csv",
+             skip = 1)
 
-# Table1----
+# Table1 (Neg Control vs. AOM DSS)----
 t1 <- dt1[1:23, c(1, 5)]
-tmp <- strsplit(t1$`Ingenuity Canonical Pathways`, split = ",")
+# NOTE: in previous version, the split was done incorrectly on pathway
+tmp <- strsplit(t1$Molecules, split = ",")
 tmp
 
+# Create a long format dataset, one row per pathway-gene combination
 out <- list()
 for (i in 1:length(tmp)) {
   out[[i]] <- data.table(pathway = rep(t1$`Ingenuity Canonical Pathways`[i], 
@@ -19,18 +22,18 @@ for (i in 1:length(tmp)) {
                          gene = tmp[[i]])
 }
 out
-
 tt1 <- do.call("rbind", out)
 tt1
 
-# Table 2----
-t2 <- dt1[1:23, c(7, 11)]
+# Table2 (Cur vs. AOM DSS)----
+t2 <- dt1[1:23, c(10, 14)]
 tmp <- strsplit(t2$Molecules, split = ",")
 tmp
 
+# Create a long format dataset, one row per pathway-gene combination
 out <- list()
 for (i in 1:length(tmp)) {
-  out[[i]] <- data.table(pathway = rep(t2$V7[i], 
+  out[[i]] <- data.table(pathway = rep(t2$V10[i], 
                                        length(tmp[[i]])),
                          gene = tmp[[i]])
 }
@@ -39,8 +42,12 @@ out
 tt2 <- do.call("rbind", out)
 tt2
 
+# # Select the list of genes that were mapped to pathways in both comparisons
+# tt3 <- subset(tt1,
+#               gene %in% unique(tt2$gene))
+
 # Table3
-t3 <- data.table(gene = dt1$V13,
+t3 <- data.table(gene = dt1$V16,
                  found = TRUE)
 t3
 
