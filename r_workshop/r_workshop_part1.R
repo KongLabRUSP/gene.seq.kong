@@ -48,6 +48,7 @@
 x <- 4
 class(x)
 typeof(x)
+x
 
 x <- "ABC"
 class(x)
@@ -59,6 +60,7 @@ x
 class(x)
 typeof(x)
 dim(x)
+length(x)
 
 x <- c(3, 6, 10)
 x
@@ -75,6 +77,12 @@ y
 y <- factor(y)
 y
 levels(y)
+nlevels(y)
+
+# y <- c(1, 4, 10)
+# y <- factor(y)
+# y
+# as.numeric(y)
 
 # Numeric
 y <- as.numeric(y)
@@ -87,15 +95,18 @@ sum(y)
 table(y)
 
 # Sequences
-1:100
+-10:100
 
 seq(from = 1, to = 10, by = 0.1)
 
 x <- c("A", "B", "C")
 seq_along(x)
+1:length(x)
 
 # Access an element of a vector with '[...]'
+x
 x[2]
+x[c(1, 3)]
 
 ## c. Matix----
 x <- matrix(1:12, ncol = 4, byrow = TRUE)
@@ -106,10 +117,11 @@ matrix(1:12, ncol = 4, byrow = FALSE)
 dim(x)
 
 # Access a row
-x[2, ]
+x[2, , drop = FALSE]
 
 # Access a column
 x[, 4]
+x[, 4, drop = FALSE]
 
 # Access an element
 x[2, 3]
@@ -137,6 +149,13 @@ x
 
 x[2, 3, 1]
 
+# Paste/split
+x <- paste("X", 1:10, sep = "")
+x
+x <- paste(x, collapse = ",")
+x
+strsplit(x, split = ",")
+
 # NOTE: all elements of matrices and arrays must be of the same type 
 
 ## d. List----
@@ -153,7 +172,7 @@ class(x$c)
 x$b[3]
 x$a[3:5]
 
-# Data frame
+# Data frame---
 n.col <- 10
 x <- data.frame(a = c(1:n.col),
                 b = LETTERS[1:n.col],
@@ -206,8 +225,13 @@ x
 x$e <- (x$a + x$c)/100
 x
 
+x$new <- NA
+x$new[2:4] <- 100*x$a[2:4]
+x
+
 # Search
 x$b <- rep(LETTERS[1:10], 100)
+x
 x$b == "A"
 
 x[x$b == "A"]
@@ -216,13 +240,18 @@ x$c[x$b == "A" & x$a == 100]
 
 # Subset data table
 subset(x, 
-       b = "A",
+       subset = (b == "A"),
        select = c("a", "b"))
 
 # Search vector in vector
 x[x$a %in% c(2, 4, 5), ]
 
 # Save data
+getwd()
+setwd("tmp")
+getwd()
+setwd("C:/git_local/gene.seq.kong")
+
 # 1. As an R object
 save(x, file = "tmp/x.RData")
 
@@ -230,7 +259,8 @@ save(x, file = "tmp/x.RData")
 write.csv(x, file = "tmp/x.csv")
 
 # 3. Read CSV
-read.csv("tmp/x.csv")
+?read.csv
+dt1 <- read.csv("tmp/x.csv")
 read.table("tmp/x.csv", sep = ",")
 fread("tmp/x.csv")
 
