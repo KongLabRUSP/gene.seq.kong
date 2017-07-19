@@ -3,6 +3,10 @@
 ### Created: 05/25/2017  
 
 ---
+
+### 07/18/2017
+1. Added 'heatmap-ran.R' script for Anne's RNA Seq analysis (DS).
+
 ### 05/30/2017
 
 1. Added new scipt for Yue's publication plots
