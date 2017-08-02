@@ -4,6 +4,9 @@
 
 ---
 
+### 07/23/2017
+* Added glmADMB code for David's RNA seq analysis (count data). 
+
 ### 07/18/2017
 1. Added 'heatmap-ran.R' script for Anne's RNA Seq analysis (DS).
 
